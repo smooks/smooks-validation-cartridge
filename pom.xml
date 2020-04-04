@@ -8,6 +8,7 @@
     <groupId>org.milyn.cartridges</groupId>
     <artifactId>smooks-validation-cartridge</artifactId>
     <version>2.0.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,6 +25,13 @@
             </testResource>
         </testResources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>4.2.1</version>
+                <extensions>true</extensions>
+                <inherited>true</inherited>
+            </plugin>                 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
