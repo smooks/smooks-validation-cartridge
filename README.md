@@ -9,4 +9,4 @@
 * JDK 8 or higher
 * Maven 3
 
-## [Documentation](https://www.smooks.org/documentation/#Rule_Based_Validation)
+## [Documentation](https://www.smooks.org/documentation/#rule-base-validation)
