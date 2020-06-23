@@ -61,14 +61,11 @@ import org.xml.sax.SAXException;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidatorFunctionTest
-{
+public class ValidatorFunctionTest {
     @Test
-    public void filter() throws IOException, SAXException
-    {
+    public void filter() throws IOException, SAXException {
         InputStream config = null;
-        try
-        {
+        try {
             config = getSmooksConfig("smooks-validation-config.xml");
             final Smooks smooks = new Smooks(config);
 
@@ -86,21 +83,17 @@ public class ValidatorFunctionTest
             assertEquals(0, validationResult.getOKs().size());
             assertEquals(0, validationResult.getErrors().size());
 
-        }
-        finally
-        {
+        } finally {
             if (config != null)
                 config.close();
         }
     }
 
-    private InputStream getSmooksConfig(final String fileName)
-    {
+    private InputStream getSmooksConfig(final String fileName) {
         return getClass().getResourceAsStream("/smooks-configs/extended/1.0/" + fileName);
     }
 
-    private String readStringFromFile(final String fileName) throws IOException
-    {
-        return StreamUtils.readStreamAsString(getClass().getResourceAsStream("/test-input-files/" + fileName));
+    private String readStringFromFile(final String fileName) throws IOException {
+        return StreamUtils.readStreamAsString(getClass().getResourceAsStream("/test-input-files/" + fileName), "UTF-8");
     }
 }
