@@ -42,15 +42,16 @@
  */
 package org.smooks.cartridges.validation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smooks.SmooksException;
+import org.smooks.cartridges.rules.RuleEvalResult;
+import org.smooks.cartridges.rules.RuleProvider;
+import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.cdr.SmooksResourceConfiguration;
-import org.smooks.cdr.annotation.AppContext;
-import org.smooks.cdr.annotation.Config;
-import org.smooks.cdr.annotation.ConfigParam;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
-import org.smooks.delivery.annotation.Initialize;
 import org.smooks.delivery.dom.DOMVisitAfter;
 import org.smooks.delivery.sax.SAXElement;
 import org.smooks.delivery.sax.SAXUtil;
@@ -60,15 +61,13 @@ import org.smooks.event.report.annotation.VisitAfterReport;
 import org.smooks.event.report.annotation.VisitBeforeReport;
 import org.smooks.payload.FilterResult;
 import org.smooks.resource.URIResourceLocator;
-import org.smooks.cartridges.rules.RuleEvalResult;
-import org.smooks.cartridges.rules.RuleProvider;
-import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.util.FreeMarkerTemplate;
 import org.smooks.xml.DomUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -114,8 +113,7 @@ import java.util.*;
  */
 @VisitBeforeReport(condition = "false")
 @VisitAfterReport(summary = "Applied validation rule '${resource.parameters.name}'.")
-public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitAfter
-{
+public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitAfter {
     private static final Logger LOGGER = LoggerFactory.getLogger(Validator.class);
 
     /**
@@ -141,12 +139,12 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
     /**
      * The Smooks {@link ApplicationContext}.
      */
-    @AppContext
+    @Inject
     private ApplicationContext appContext;
     /**
      * Config.
      */
-    @Config
+    @Inject
     private SmooksResourceConfiguration config;
     /**
      * Attribute name if the validation target is an attribute, otherwise null.
@@ -165,12 +163,13 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
     /**
      * No-args constructor required by Smooks.
      */
-    public Validator() {}
+    public Validator() {
+    }
 
     /**
      * Initialize the visitor instance.
      */
-    @Initialize
+    @PostConstruct
     public void initialize() {
         targetAttribute = config.getTargetAttribute();
 
@@ -178,52 +177,49 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
 
     /**
      * Public constructor.
+     *
      * @param compositRuleName The name of the rule that will be used by this validator.
-     * @param onFail The failure level.
+     * @param onFail           The failure level.
      */
-    public Validator(final String compositRuleName, final OnFail onFail)
-    {
+    public Validator(final String compositRuleName, final OnFail onFail) {
         setCompositRuleName(compositRuleName);
         this.onFail = onFail;
     }
 
-    public void visitBefore(final SAXElement element, final ExecutionContext executionContext) throws SmooksException
-    {
-        if(targetAttribute == null) {
+    public void visitBefore(final SAXElement element, final ExecutionContext executionContext) throws SmooksException {
+        if (targetAttribute == null) {
             // The selected text is not an attribute, which means it's the element text,
             // which means we need to turn on text accumulation for SAX...
             element.accumulateText();
         }
     }
 
-    public void visitAfter(final SAXElement element, final ExecutionContext executionContext) throws SmooksException
-    {
-        if(targetAttribute != null) {
+    public void visitAfter(final SAXElement element, final ExecutionContext executionContext) throws SmooksException {
+        if (targetAttribute != null) {
             OnFailResultImpl result = _validate(element.getAttribute(targetAttribute), executionContext);
-            if(result != null) {
+            if (result != null) {
                 result.setFailFragmentPath(SAXUtil.getXPath(element) + "/@" + targetAttribute);
                 assertValidationException(result, executionContext);
             }
         } else {
             OnFailResultImpl result = _validate(element.getTextContent(), executionContext);
-            if(result != null) {
+            if (result != null) {
                 result.setFailFragmentPath(SAXUtil.getXPath(element));
                 assertValidationException(result, executionContext);
             }
         }
     }
 
-    public void visitAfter(final Element element, final ExecutionContext executionContext) throws SmooksException
-    {
-        if(targetAttribute != null) {
+    public void visitAfter(final Element element, final ExecutionContext executionContext) throws SmooksException {
+        if (targetAttribute != null) {
             OnFailResultImpl result = _validate(element.getAttribute(targetAttribute), executionContext);
-            if(result != null) {
+            if (result != null) {
                 result.setFailFragmentPath(DomUtils.getXPath(element) + "/@" + targetAttribute);
                 assertValidationException(result, executionContext);
             }
         } else {
             OnFailResultImpl result = _validate(element.getTextContent(), executionContext);
-            if(result != null) {
+            if (result != null) {
                 result.setFailFragmentPath(DomUtils.getXPath(element));
                 assertValidationException(result, executionContext);
             }
@@ -236,7 +232,7 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
         }
 
         ValidationResult validationResult = getValidationResult(executionContext);
-        if(validationResult != null && validationResult.getNumFailures() > maxFails) {
+        if (validationResult != null && validationResult.getNumFailures() > maxFails) {
             throw new ValidationException("The maximum number of allowed validation failures (" + maxFails + ") has been exceeded.", result);
         }
     }
@@ -245,16 +241,14 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
      * Validate will lookup the configured RuleProvider and validate the text against the
      * rule specfied by the composite rule name.
      *
-     * @param text The selected data to perform the evaluation on.
+     * @param text             The selected data to perform the evaluation on.
      * @param executionContext The Smooks {@link org.smooks.container.ExecutionContext}.
-     *
      * @throws ValidationException A FATAL Validation failure has occured, or the maximum number of
-     * allowed failures has been exceeded.
+     *                             allowed failures has been exceeded.
      */
-    void validate(final String text, final ExecutionContext executionContext) throws ValidationException
-    {
+    void validate(final String text, final ExecutionContext executionContext) throws ValidationException {
         OnFailResultImpl result = _validate(text, executionContext);
-        if(result != null) {
+        if (result != null) {
             assertValidationException(result, executionContext);
         }
     }
@@ -263,26 +257,23 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
      * Validate will lookup the configured RuleProvider and validate the text against the
      * rule specfied by the composite rule name.
      *
-     * @param text The selected data to perform the evaluation on.
+     * @param text             The selected data to perform the evaluation on.
      * @param executionContext The Smooks {@link org.smooks.container.ExecutionContext}.
-     *
      * @throws ValidationException A FATAL Validation failure has occured, or the maximum number of
-     * allowed failures has been exceeded.
+     *                             allowed failures has been exceeded.
      */
-    private OnFailResultImpl _validate(final String text, final ExecutionContext executionContext) throws ValidationException
-    {
-        if(ruleProvider == null) {
+    private OnFailResultImpl _validate(final String text, final ExecutionContext executionContext) throws ValidationException {
+        if (ruleProvider == null) {
             setRuleProvider(executionContext);
         }
 
         final RuleEvalResult result = ruleProvider.evaluate(ruleName, text, executionContext);
 
-        if(LOGGER.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(result.toString());
         }
 
-        if (!result.matched())
-        {
+        if (!result.matched()) {
             ValidationResult validationResult = getValidationResult(executionContext);
             OnFailResultImpl onFailResult = new OnFailResultImpl();
             onFailResult.setRuleResult(result);
@@ -307,12 +298,12 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
     }
 
     private synchronized void setRuleProvider(ExecutionContext executionContext) {
-        if(ruleProvider != null) {
+        if (ruleProvider != null) {
             return;
         }
 
         ruleProvider = RuleProviderAccessor.get(appContext, ruleProviderName);
-        if(ruleProvider == null) {
+        if (ruleProvider == null) {
             throw new SmooksException("Unknown rule provider '" + ruleProviderName + "'.");
         }
 
@@ -321,10 +312,10 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
 
         // Configure the maxFails per ValidationResult instance...
         String maxFailsConfig = executionContext.getConfigParameter(OnFailResult.MAX_FAILS);
-        if(maxFailsConfig != null) {
+        if (maxFailsConfig != null) {
             try {
                 maxFails = Integer.parseInt(maxFailsConfig.trim());
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 throw new SmooksConfigurationException("Invalid config value '" + maxFailsConfig.trim() + "' for global parameter '" + OnFailResult.MAX_FAILS + "'.  Must be a valid Integer value.");
             }
         } else {
@@ -339,13 +330,13 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
         int indexOfExt = srcFileName.lastIndexOf('.');
         File parentFolder = srcFile.getParentFile();
 
-        if(indexOfExt != -1) {
+        if (indexOfExt != -1) {
             messageBundleBaseName = srcFileName.substring(0, indexOfExt);
         } else {
             messageBundleBaseName = ruleSource;
         }
 
-        if(parentFolder != null) {
+        if (parentFolder != null) {
             messageBundleBaseName = parentFolder.getPath() + "/i18n/" + messageBundleBaseName;
         } else {
             messageBundleBaseName = "i18n/" + messageBundleBaseName;
@@ -355,32 +346,27 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format("%s [rule=%s, onFail=%s]", getClass().getSimpleName(), compositRuleName, onFail);
     }
 
-    @ConfigParam (name="name")
-    public void setCompositRuleName(final String compositRuleName)
-    {
+    @Inject
+    public void setCompositRuleName(@Named("name") final String compositRuleName) {
         this.compositRuleName = compositRuleName;
         this.ruleProviderName = RuleProviderAccessor.parseRuleProviderName(compositRuleName);
         this.ruleName = RuleProviderAccessor.parseRuleName(compositRuleName);
     }
 
-    public String getCompositRuleName()
-    {
+    public String getCompositRuleName() {
         return compositRuleName;
     }
 
-    @ConfigParam (defaultVal = "ERROR")
-    public void setOnFail(final OnFail onFail)
-    {
-        this.onFail = onFail;
+    @Inject
+    public void setOnFail(final Optional<OnFail> onFail) {
+        this.onFail = onFail.orElse(OnFail.ERROR);
     }
 
-    public OnFail getOnFail()
-    {
+    public OnFail getOnFail() {
         return onFail;
     }
 
@@ -424,7 +410,7 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
         }
 
         public String getMessage(Locale locale) {
-            if(ruleResult.getEvalException() != null) {
+            if (ruleResult.getEvalException() != null) {
                 return ruleResult.getEvalException().getMessage();
             }
 
@@ -453,8 +439,8 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
             if (messageName == null || bundle == null)
                 return null;
 
-           return bundle.getString(messageName);
-         }
+            return bundle.getString(messageName);
+        }
 
         /**
          * @param locale The Locale to look up.
