@@ -170,8 +170,8 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
      * Initialize the visitor instance.
      */
     @PostConstruct
-    public void initialize() {
-        targetAttribute = config.getTargetAttribute();
+    public void postConstruct() {
+        targetAttribute = config.getSelectorPath().getTargetAttribute();
 
     }
 
