@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema targetNamespace="https://www.smooks.org/xsd/smooks/validation-1.1.xsd"
+<xs:schema targetNamespace="https://www.smooks.org/xsd/smooks/validation-2.0.xsd"
            elementFormDefault="qualified"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:smooks="https://www.smooks.org/xsd/smooks-1.2.xsd"
-           xmlns:smooks-validation="https://www.smooks.org/xsd/smooks/validation-1.1.xsd">
+           xmlns:smooks="https://www.smooks.org/xsd/smooks-2.0.xsd"
+           xmlns:validation="https://www.smooks.org/xsd/smooks/validation-2.0.xsd">
 
-    <xs:import namespace="https://www.smooks.org/xsd/smooks-1.2.xsd"/>
+    <xs:import namespace="https://www.smooks.org/xsd/smooks-2.0.xsd"/>
 
     <xs:annotation>
         <xs:documentation xml:lang="en">Smooks Validation Configuration</xs:documentation>
@@ -27,13 +27,6 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="executeOnNS" type="xs:anyURI">
-                    <xs:annotation>
-                        <xs:documentation xml:lang="en">
-                            Namespace for the "executeOn" attribute.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
                 <xs:attribute name="name" type="xs:string" use="required">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">
@@ -42,7 +35,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="onFail" type="smooks-validation:onFail" use="required">
+                <xs:attribute name="onFail" type="validation:onFail" use="required">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">Validation failure categorization.</xs:documentation>
                     </xs:annotation>
