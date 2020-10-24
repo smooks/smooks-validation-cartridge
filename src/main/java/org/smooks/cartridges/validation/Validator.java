@@ -52,11 +52,10 @@ import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.cdr.SmooksResourceConfiguration;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
-import org.smooks.delivery.dom.DOMVisitAfter;
-import org.smooks.delivery.sax.SAXElement;
-import org.smooks.delivery.sax.SAXUtil;
-import org.smooks.delivery.sax.SAXVisitAfter;
-import org.smooks.delivery.sax.SAXVisitBefore;
+import org.smooks.delivery.memento.NodeVisitable;
+import org.smooks.delivery.memento.TextAccumulatorMemento;
+import org.smooks.delivery.sax.ng.AfterVisitor;
+import org.smooks.delivery.sax.ng.ChildrenVisitor;
 import org.smooks.event.report.annotation.VisitAfterReport;
 import org.smooks.event.report.annotation.VisitBeforeReport;
 import org.smooks.payload.FilterResult;
@@ -113,7 +112,7 @@ import java.util.*;
  */
 @VisitBeforeReport(condition = "false")
 @VisitAfterReport(summary = "Applied validation rule '${resource.parameters.name}'.")
-public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitAfter {
+public final class Validator implements ChildrenVisitor, AfterVisitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Validator.class);
 
     /**
@@ -178,38 +177,15 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
     /**
      * Public constructor.
      *
-     * @param compositRuleName The name of the rule that will be used by this validator.
+     * @param compositeRuleName The name of the rule that will be used by this validator.
      * @param onFail           The failure level.
      */
-    public Validator(final String compositRuleName, final OnFail onFail) {
-        setCompositRuleName(compositRuleName);
+    public Validator(final String compositeRuleName, final OnFail onFail) {
+        setCompositRuleName(compositeRuleName);
         this.onFail = onFail;
     }
-
-    public void visitBefore(final SAXElement element, final ExecutionContext executionContext) throws SmooksException {
-        if (targetAttribute == null) {
-            // The selected text is not an attribute, which means it's the element text,
-            // which means we need to turn on text accumulation for SAX...
-            element.accumulateText();
-        }
-    }
-
-    public void visitAfter(final SAXElement element, final ExecutionContext executionContext) throws SmooksException {
-        if (targetAttribute != null) {
-            OnFailResultImpl result = _validate(element.getAttribute(targetAttribute), executionContext);
-            if (result != null) {
-                result.setFailFragmentPath(SAXUtil.getXPath(element) + "/@" + targetAttribute);
-                assertValidationException(result, executionContext);
-            }
-        } else {
-            OnFailResultImpl result = _validate(element.getTextContent(), executionContext);
-            if (result != null) {
-                result.setFailFragmentPath(SAXUtil.getXPath(element));
-                assertValidationException(result, executionContext);
-            }
-        }
-    }
-
+    
+    @Override
     public void visitAfter(final Element element, final ExecutionContext executionContext) throws SmooksException {
         if (targetAttribute != null) {
             OnFailResultImpl result = _validate(element.getAttribute(targetAttribute), executionContext);
@@ -218,21 +194,24 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
                 assertValidationException(result, executionContext);
             }
         } else {
-            OnFailResultImpl result = _validate(element.getTextContent(), executionContext);
+            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeVisitable(element), this);
+            executionContext.getMementoCaretaker().restore(textAccumulatorMemento);
+
+            OnFailResultImpl result = _validate(textAccumulatorMemento.getText(), executionContext);
             if (result != null) {
                 result.setFailFragmentPath(DomUtils.getXPath(element));
                 assertValidationException(result, executionContext);
             }
         }
     }
-
+    
     private void assertValidationException(OnFailResultImpl result, ExecutionContext executionContext) {
         if (onFail == OnFail.FATAL) {
             throw new ValidationException("A FATAL validation failure has occured " + result, result);
         }
 
         ValidationResult validationResult = getValidationResult(executionContext);
-        if (validationResult != null && validationResult.getNumFailures() > maxFails) {
+        if (validationResult.getNumFailures() > maxFails) {
             throw new ValidationException("The maximum number of allowed validation failures (" + maxFails + ") has been exceeded.", result);
         }
     }
@@ -375,6 +354,23 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
         return this;
     }
 
+    @Override
+    public void visitChildText(Element element, ExecutionContext executionContext) {
+        if (targetAttribute == null) {
+            // The selected text is not an attribute, which means it's the element text,
+            // which means we need to turn on text accumulation for SAX...
+            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeVisitable(element), this);
+            executionContext.getMementoCaretaker().restore(textAccumulatorMemento);
+            textAccumulatorMemento.accumulateText(element.getTextContent());
+            executionContext.getMementoCaretaker().save(textAccumulatorMemento);
+        }
+    }
+
+    @Override
+    public void visitChildElement(Element childElement, ExecutionContext executionContext) {
+
+    }
+
     private class OnFailResultImpl implements OnFailResult {
 
         private String failFragmentPath;
@@ -462,7 +458,7 @@ public final class Validator implements SAXVisitBefore, SAXVisitAfter, DOMVisitA
         }
     }
 
-    private class ResourceBundleClassLoader extends ClassLoader {
+    private static class ResourceBundleClassLoader extends ClassLoader {
         @Override
         public InputStream getResourceAsStream(String name) {
             try {

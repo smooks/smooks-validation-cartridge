@@ -42,23 +42,21 @@
  */
 package org.smooks.cartridges.validation;
 
-import static org.junit.Assert.*;
-
-
 import org.junit.Before;
 import org.junit.Test;
-import org.smooks.container.MockApplicationContext;
-import org.smooks.container.MockExecutionContext;
+import org.smooks.Smooks;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.cartridges.rules.regex.RegexProvider;
+import org.smooks.container.MockApplicationContext;
+import org.smooks.container.MockExecutionContext;
 import org.smooks.payload.FilterResult;
 import org.smooks.payload.StringSource;
-import org.smooks.Smooks;
-import org.smooks.FilterSettings;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * Unit test for {@link Validator}
@@ -183,21 +181,10 @@ public class ValidatorTest
     }
 
     @Test
-    public void test_xml_config_01_dom() throws IOException, SAXException {
-        test_xml_config_01(FilterSettings.DEFAULT_DOM);
-    }
-
-    @Test
-    public void test_xml_config_01_sax() throws IOException, SAXException {
-        test_xml_config_01(FilterSettings.DEFAULT_SAX);
-    }
-
-    private void test_xml_config_01(FilterSettings filterSettings) throws IOException, SAXException {
+    public void test_xml_config_01() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("config-01.xml"));
         ValidationResult result = new ValidationResult();
-
-        smooks.setFilterSettings(filterSettings);
-
+        
         smooks.filterSource(new StringSource("<a><b x='Xx'>11</b><b x='C'>Aaa</b></a>"), result);
 
         List<OnFailResult> warnings = result.getWarnings();
