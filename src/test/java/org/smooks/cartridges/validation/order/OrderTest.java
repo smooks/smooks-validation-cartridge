@@ -43,7 +43,6 @@
 package org.smooks.cartridges.validation.order;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.smooks.Smooks;
 import org.smooks.SmooksException;
 import org.smooks.cartridges.validation.OnFailResult;
@@ -53,6 +52,9 @@ import org.xml.sax.SAXException;
 import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author <a href="mailto:tom.fennelly@jboss.com">tom.fennelly@jboss.com</a>
@@ -75,10 +77,10 @@ public class OrderTest {
             assertEquals(3, errors.size());
             assertEquals(1, warnings.size());
 
-            assertEquals("Invalid customer number '123123' at 'order/header/customer/@number'.  Customer number must match pattern '[A-Z]-[0-9]{5}'.", errors.get(0).getMessage());
-            assertEquals("Invalid product ID '222' at 'order/order-items/order-item/product'.  Product ID must match pattern '[0-9]{6}'.", errors.get(1).getMessage());
+            assertEquals("Invalid customer number '123123' at '/order/header/customer/@number'.  Customer number must match pattern '[A-Z]-[0-9]{5}'.", errors.get(0).getMessage());
+            assertEquals("Invalid product ID '222' at '/order/order-items/order-item/product'.  Product ID must match pattern '[0-9]{6}'.", errors.get(1).getMessage());
             assertEquals("Order 12129 (Customer 123123) contains an order item for product 222 which contains an invalid quantity of 7. This quantity exceeds the maximum permited quantity for this product (5).", errors.get(2).getMessage());
-            assertEquals("Invalid customer name 'Joe' at 'order/header/customer'.  Customer name must match pattern '[A-Z][a-z]*, [A-Z][a-z]*'.", warnings.get(0).getMessage());
+            assertEquals("Invalid customer name 'Joe' at '/order/header/customer'.  Customer name must match pattern '[A-Z][a-z]*, [A-Z][a-z]*'.", warnings.get(0).getMessage());
         } finally {
             smooks.close();
         }
@@ -109,9 +111,9 @@ public class OrderTest {
             smooks.filterSource(new StreamSource(getClass().getResourceAsStream("order-message-03.xml")), result);
             fail("Expected SmooksException");
         } catch(SmooksException e) {
-            assertEquals("A FATAL validation failure has occured [order/order-items/order-item/fail] RegexRuleEvalResult, matched=false, providerName=product, ruleName=failProduct, text=true, pattern=false", e.getCause().getMessage());
+            assertEquals("A FATAL validation failure has occured [/order/order-items/order-item/fail] RegexRuleEvalResult, matched=false, providerName=product, ruleName=failProduct, text=true, pattern=false", e.getCause().getMessage());
             assertEquals(5, result.getNumFailures());
-            assertEquals("[order/order-items/order-item/fail] RegexRuleEvalResult, matched=false, providerName=product, ruleName=failProduct, text=true, pattern=false", result.getFatal().toString());
+            assertEquals("[/order/order-items/order-item/fail] RegexRuleEvalResult, matched=false, providerName=product, ruleName=failProduct, text=true, pattern=false", result.getFatal().toString());
         } finally {
             smooks.close();
         }
