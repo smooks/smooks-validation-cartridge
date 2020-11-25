@@ -48,8 +48,8 @@ import org.smooks.SmooksException;
 import org.smooks.cartridges.rules.RuleEvalResult;
 import org.smooks.cartridges.rules.RuleProvider;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
+import org.smooks.cdr.ResourceConfig;
 import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.cdr.SmooksResourceConfiguration;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.memento.NodeVisitable;
@@ -144,7 +144,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
      * Config.
      */
     @Inject
-    private SmooksResourceConfiguration config;
+    private ResourceConfig resourceConfig;
     /**
      * Attribute name if the validation target is an attribute, otherwise null.
      */
@@ -170,7 +170,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
      */
     @PostConstruct
     public void postConstruct() {
-        targetAttribute = config.getSelectorPath().getTargetAttribute();
+        targetAttribute = resourceConfig.getSelectorPath().getTargetAttribute();
 
     }
 
