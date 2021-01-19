@@ -52,7 +52,7 @@ import org.smooks.cdr.ResourceConfig;
 import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
-import org.smooks.delivery.memento.NodeVisitable;
+import org.smooks.delivery.fragment.NodeFragment;
 import org.smooks.delivery.memento.TextAccumulatorMemento;
 import org.smooks.delivery.sax.ng.AfterVisitor;
 import org.smooks.delivery.sax.ng.ChildrenVisitor;
@@ -62,6 +62,7 @@ import org.smooks.payload.FilterResult;
 import org.smooks.resource.URIResourceLocator;
 import org.smooks.util.FreeMarkerTemplate;
 import org.smooks.xml.DomUtils;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 
 import javax.annotation.PostConstruct;
@@ -194,7 +195,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
                 assertValidationException(result, executionContext);
             }
         } else {
-            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeVisitable(element), this);
+            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeFragment(element), this);
             executionContext.getMementoCaretaker().restore(textAccumulatorMemento);
 
             OnFailResultImpl result = _validate(textAccumulatorMemento.getText(), executionContext);
@@ -355,13 +356,13 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
     }
 
     @Override
-    public void visitChildText(Element element, ExecutionContext executionContext) {
+    public void visitChildText(CharacterData characterData, ExecutionContext executionContext) {
         if (targetAttribute == null) {
             // The selected text is not an attribute, which means it's the element text,
             // which means we need to turn on text accumulation for SAX...
-            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeVisitable(element), this);
+            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeFragment(characterData.getParentNode()), this);
             executionContext.getMementoCaretaker().restore(textAccumulatorMemento);
-            textAccumulatorMemento.accumulateText(element.getTextContent());
+            textAccumulatorMemento.accumulateText(characterData.getTextContent());
             executionContext.getMementoCaretaker().save(textAccumulatorMemento);
         }
     }
