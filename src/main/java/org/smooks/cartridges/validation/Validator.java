@@ -363,7 +363,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
             TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeFragment(characterData.getParentNode()), this);
             executionContext.getMementoCaretaker().restore(textAccumulatorMemento);
             textAccumulatorMemento.accumulateText(characterData.getTextContent());
-            executionContext.getMementoCaretaker().save(textAccumulatorMemento);
+            executionContext.getMementoCaretaker().capture(textAccumulatorMemento);
         }
     }
 
