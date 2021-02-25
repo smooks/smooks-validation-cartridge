@@ -47,10 +47,10 @@ import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.cartridges.rules.regex.RegexProvider;
-import org.smooks.container.MockApplicationContext;
-import org.smooks.container.MockExecutionContext;
-import org.smooks.payload.FilterResult;
-import org.smooks.payload.StringSource;
+import org.smooks.io.payload.FilterResult;
+import org.smooks.io.payload.StringSource;
+import org.smooks.tck.MockApplicationContext;
+import org.smooks.tck.MockExecutionContext;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;

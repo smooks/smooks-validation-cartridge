@@ -44,6 +44,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gpg.skip>true</gpg.skip>
+        <smooks.version>2.0.0-M3-SNAPSHOT</smooks.version>
     </properties>
     
     <dependencyManagement>
@@ -208,7 +209,13 @@
         <dependency>
             <groupId>org.smooks.cartridges</groupId>
             <artifactId>smooks-rules-cartridge</artifactId>
-            <version>2.0.0-M3-SNAPSHOT</version>
+            <version>${smooks.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.smooks</groupId>
+            <artifactId>smooks-tck</artifactId>
+            <version>${smooks.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

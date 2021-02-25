@@ -42,19 +42,19 @@
  */
 package org.smooks.cartridges.validation;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.smooks.Smooks;
+import org.smooks.api.ExecutionContext;
+import org.smooks.io.StreamUtils;
+import org.smooks.io.payload.StringResult;
+import org.smooks.io.payload.StringSource;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.junit.Test;
-import org.smooks.Smooks;
-import org.smooks.container.ExecutionContext;
-import org.smooks.io.StreamUtils;
-import org.smooks.payload.StringResult;
-import org.smooks.payload.StringSource;
-import org.xml.sax.SAXException;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Function test for {@link Validator}

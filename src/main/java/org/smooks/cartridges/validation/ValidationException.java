@@ -42,7 +42,7 @@
  */
 package org.smooks.cartridges.validation;
 
-import org.smooks.SmooksException;
+import org.smooks.api.SmooksException;
 
 /**
  * Exception that carries information about a validation failure.

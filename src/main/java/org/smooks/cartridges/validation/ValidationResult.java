@@ -42,10 +42,10 @@
  */
 package org.smooks.cartridges.validation;
 
-import java.util.*;
-
 import org.smooks.assertion.AssertArgument;
-import org.smooks.payload.FilterResult;
+import org.smooks.io.payload.FilterResult;
+
+import java.util.*;
 
 /**
  * ValidationResult object for capturing validation failures

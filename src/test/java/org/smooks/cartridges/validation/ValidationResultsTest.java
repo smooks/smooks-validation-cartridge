@@ -42,15 +42,16 @@
  */
 package org.smooks.cartridges.validation;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.smooks.cartridges.rules.RuleEvalResult;
+import org.smooks.tck.MockExecutionContext;
 
 import java.util.List;
 import java.util.Locale;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.smooks.container.MockExecutionContext;
-import org.smooks.cartridges.rules.RuleEvalResult;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Test for {@link ValidationResult}.
