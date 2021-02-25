@@ -44,7 +44,7 @@ package org.smooks.cartridges.validation.order;
 
 import org.junit.Test;
 import org.smooks.Smooks;
-import org.smooks.SmooksException;
+import org.smooks.api.SmooksException;
 import org.smooks.cartridges.validation.OnFailResult;
 import org.smooks.cartridges.validation.ValidationResult;
 import org.xml.sax.SAXException;

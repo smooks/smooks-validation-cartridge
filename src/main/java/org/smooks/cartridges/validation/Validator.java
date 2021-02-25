@@ -44,24 +44,24 @@ package org.smooks.cartridges.validation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smooks.SmooksException;
+import org.smooks.api.ApplicationContext;
+import org.smooks.api.ExecutionContext;
+import org.smooks.api.SmooksConfigException;
+import org.smooks.api.SmooksException;
+import org.smooks.api.resource.config.ResourceConfig;
+import org.smooks.api.resource.visitor.VisitAfterReport;
+import org.smooks.api.resource.visitor.VisitBeforeReport;
+import org.smooks.api.resource.visitor.sax.ng.AfterVisitor;
+import org.smooks.api.resource.visitor.sax.ng.ChildrenVisitor;
 import org.smooks.cartridges.rules.RuleEvalResult;
 import org.smooks.cartridges.rules.RuleProvider;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
-import org.smooks.cdr.ResourceConfig;
-import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.container.ApplicationContext;
-import org.smooks.container.ExecutionContext;
-import org.smooks.delivery.fragment.NodeFragment;
-import org.smooks.delivery.memento.TextAccumulatorMemento;
-import org.smooks.delivery.sax.ng.AfterVisitor;
-import org.smooks.delivery.sax.ng.ChildrenVisitor;
-import org.smooks.event.report.annotation.VisitAfterReport;
-import org.smooks.event.report.annotation.VisitBeforeReport;
-import org.smooks.payload.FilterResult;
+import org.smooks.engine.delivery.fragment.NodeFragment;
+import org.smooks.engine.memento.TextAccumulatorMemento;
+import org.smooks.io.payload.FilterResult;
 import org.smooks.resource.URIResourceLocator;
-import org.smooks.util.FreeMarkerTemplate;
-import org.smooks.xml.DomUtils;
+import org.smooks.support.DomUtils;
+import org.smooks.support.FreeMarkerTemplate;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 
@@ -222,7 +222,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
      * rule specfied by the composite rule name.
      *
      * @param text             The selected data to perform the evaluation on.
-     * @param executionContext The Smooks {@link org.smooks.container.ExecutionContext}.
+     * @param executionContext The Smooks {@link org.smooks.api.ExecutionContext}.
      * @throws ValidationException A FATAL Validation failure has occured, or the maximum number of
      *                             allowed failures has been exceeded.
      */
@@ -238,7 +238,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
      * rule specfied by the composite rule name.
      *
      * @param text             The selected data to perform the evaluation on.
-     * @param executionContext The Smooks {@link org.smooks.container.ExecutionContext}.
+     * @param executionContext The Smooks {@link org.smooks.api.ExecutionContext}.
      * @throws ValidationException A FATAL Validation failure has occured, or the maximum number of
      *                             allowed failures has been exceeded.
      */
@@ -296,7 +296,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
             try {
                 maxFails = Integer.parseInt(maxFailsConfig.trim());
             } catch (NumberFormatException e) {
-                throw new SmooksConfigurationException("Invalid config value '" + maxFailsConfig.trim() + "' for global parameter '" + OnFailResult.MAX_FAILS + "'.  Must be a valid Integer value.");
+                throw new SmooksConfigException("Invalid config value '" + maxFailsConfig.trim() + "' for global parameter '" + OnFailResult.MAX_FAILS + "'.  Must be a valid Integer value.");
             }
         } else {
             maxFails = Integer.MAX_VALUE;
