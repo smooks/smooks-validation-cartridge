@@ -45,9 +45,9 @@ package org.smooks.cartridges.validation;
 import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.api.ExecutionContext;
-import org.smooks.io.StreamUtils;
 import org.smooks.io.payload.StringResult;
 import org.smooks.io.payload.StringSource;
+import org.smooks.support.StreamUtils;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -61,7 +61,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidatorFunctionTest {
+public class ValidatorFunctionalTest {
     @Test
     public void filter() throws IOException, SAXException {
         InputStream config = null;
