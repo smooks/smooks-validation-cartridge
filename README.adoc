@@ -1,0 +1,126 @@
+= Smooks Validation Cartridge
+
+image:https://img.shields.io/maven-central/v/org.smooks.cartridges/smooks-validation-cartridge[Maven Central]
+image:https://img.shields.io/nexus/s/org.smooks.cartridges/smooks-validation-cartridge?server=https%3A%2F%2Foss.sonatype.org[Sonatype Nexus (Snapshots)]
+image:https://github.com/smooks/smooks-validation-cartridge/workflows/CI/badge.svg[Build Status]
+
+// tag::smooks-validation-cartridge[]
+The Smooks Validation Cartridge builds on the functionality provided by the https://github.com/smooks/smooks-rules-cartridge/blob/master/README.adoc[rules cartridge], to provide rules-based fragment validation.
+
+The type of validation provided by the components of the Smooks Validation Cartridge allows you to perform more detailed validation (over the likes of XSD/Relax) on message fragments. As with everything in Smooks, the Validation functionality is supported across all supported data formats. This means you can perform strong validation on not just XML data, but also on EDI, JSON, CSV, etc...
+
+Validation configurations are defined by the `+https://www.smooks.org/xsd/smooks/validation-1.1.xsd configuration namespace+`.
+
+== Validation Configuration
+
+Smooks supports a number of different Rule Provider types that can be used by the Validation Cartridge. They provide different levels of validation. These different forms of Validation are configured in exactly the same way. The Smooks Validation Cartridge sees a Rule Provider as an abstract resource that it can target at message fragments in order to perform validation on the data in that message fragment.
+
+A Validation rule configuration is very simple. You simply need to specify:
+
+* `+executeOn+`: The fragment on which the rule is to be executed.
+* `+excecuteOnNS+`: The fragment namespace (NS) that that 'executeOn'
+belongs to.
+* `+name+`: The name of the rule to be applied. This is a
+link:#composite-rule-name[Composite Rule Name] that references a
+`+ruleBase+` and `+ruleName+` combination in a dot delimited format i.e., _ruleBaseName.ruleName_.
+* `+onFail+`: The severity of a failed match for the Validation rule. See
+link:#onfail[onFail] section for details.
+
+An example of a validation rule configuration would be:
+
+.smooks-config.xml
+[source,xml]
+----
+<validation:rule executeOn="order/header/email" name="regexAddressing.email" onFail="ERROR" />
+----
+
+=== Configuring Max Failures
+
+One can set a maximum number of validation failures per Smooks filter operation. An exception will be thrown if this max value is exceeded.Note that validations configured with `+onFail="FATAL"+` will always throw an exception and stop processing.
+
+To configure the maximum validation failures add this following to you Smooks configuration:
+
+.smooks-config.xml
+[source,xml]
+----
+<params>
+    <param name="validation.maxFails">5</param>
+</params>
+----
+
+=== onFail
+
+The `+onFail+` attribute in the validation configuration specified what action should be taken when a rule matches. This is all about reporting back validation failures.
+
+The following options are available:
+
+* `+OK+`: Save the validation as an ok validation. Calling `+ValidationResults.getOks+` will return all validation warnings. This can be useful for content based routing.
+* `+WARN+`: Save the validation as a warning. Calling `+ValidationResults.getWarnings+` will return all validation warnings.
+* `+ERROR+`: Save the validation as an error. Calling `+ValidationResults.getErrors+` will return all validation errors.
+* `+FATAL+`: Will throw a `+ValidationException+` as soon as a validation failure occurs. Calling `+ValidationResults.getFatal+` will return the fatal validation failure.
+
+=== Composite Rule Name
+
+When a RuleBase is referenced in Smooks you use a composite rule name in the following format:
+
+[source,xml]
+----
+<ruleProviderName>.<ruleName>
+----
+
+`+ruleProviderName+` Identifies the rule provider and maps to the 'name' attribute in the 'ruleBase' element.
+
+`+ruleName+` Identifies a specific rule the rule provider knows about.This could be a rule defined in the 'src' file/resource.
+
+== Validation Results
+
+Validation results are captured by the Smooks.filterSource by specifying a `+ValidationResult+` instance in the `+filterSource+` method call. When the `+filterSource+` method returns, the `+ValidationResult+` instance will contain all validation data.
+
+An example of executing Smooks in order to perform message fragment validation is as follows:
+
+[source,java]
+----
+ValidationResult validationResult = new ValidationResult();
+
+smooks.filterSource(new StreamSource(messageInStream), new StreamResult(messageOutStream), validationResult);
+
+List<OnFailResult> errors = validationResult.getErrors();
+List<OnFailResult> warnings = validationResult.getWarnings();
+----
+
+As you can see from the above code, individual warning, error, and other validation results are made available from the `+ValidationResult+` object in the form of `+OnFailResult+` instances. The `+OnFailResult+` object provides details about an individual failure.
+
+== Localized Validation Messages
+
+The Validation Cartridge provides support for specifying localized messages relating to Validation failures. These messages can be defined in standard Java ResourceBundle files (_.properties_ format). A convention is used here, based on the rule source name (`+src+`). The validation message bundle base name is derived from the rule source by dropping the rule source file extension and adding an extra folder named _i18n_ e.g. for an MVEL ruleBase source of _/org/smooks/validation/order/rules/order-rules.csv_, the corresponding validation message bundle base name would be "/org/smooks/validation/order/rules/i18n/order-rules".
+
+The validation cartridge supports application of FreeMarker templates on the localized messages, allowing the messages to contain contextual data from the bean context, as well as data about the actual rule failure. FreeMarker based messages must be prefixed with `+ftl:+` and the contextual data is references using the normal FreeMarker notation. The beans from the bean context can be referenced directly, while the RuleEvalResult and rule failure path can be referenced through the `+ruleResult+` and `+path+` beans.
+
+Example message using RegexProvider rules:
+
+....
+customerId=ftl:Invalid customer number '${ruleResult.text}' at '${path}'.  Customer number must match pattern '${ruleResult.pattern}'.
+....
+
+== Example
+
+https://github.com/smooks/smooks-examples/tree/v1.0.2/validation-basic[See the Validation Example].
+
+== Maven Coordinates
+
+.pom.xml
+[source,xml]
+----
+<dependency>
+    <groupId>org.smooks.cartridges</groupId>
+    <artifactId>smooks-validation-cartridge</artifactId>
+    <version>2.0.0-M3</version>
+</dependency>
+----
+// end::smooks-validation-cartridge[]
+
+== License
+
+Smooks Validation Cartridge is open source and licensed under the terms of the Apache License Version 2.0, or the GNU Lesser General Public License version 3.0 or later. You may use Smooks Validation Cartridge according to either of these licenses as is most appropriate for your project.
+
+`+SPDX-License-Identifier: Apache-2.0 OR LGPL-3.0-or-later+`
