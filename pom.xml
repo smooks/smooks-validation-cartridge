@@ -44,18 +44,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gpg.skip>true</gpg.skip>
-        <smooks.version>2.0.0-M3</smooks.version>
     </properties>
-    
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.12.0</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <testResources>
@@ -209,12 +198,18 @@
         <dependency>
             <groupId>org.smooks.cartridges</groupId>
             <artifactId>smooks-rules-cartridge</artifactId>
-            <version>${smooks.version}</version>
+            <version>2.0.0-RC1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.smooks.cartridges</groupId>
+            <artifactId>smooks-javabean-cartridge</artifactId>
+            <version>2.0.0-RC1-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.smooks</groupId>
             <artifactId>smooks-tck</artifactId>
-            <version>${smooks.version}</version>
+            <version>2.0.0-RC1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
