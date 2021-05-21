@@ -58,6 +58,7 @@ import org.smooks.cartridges.rules.RuleProvider;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.engine.delivery.fragment.NodeFragment;
 import org.smooks.engine.memento.TextAccumulatorMemento;
+import org.smooks.engine.memento.TextAccumulatorVisitorMemento;
 import org.smooks.io.payload.FilterResult;
 import org.smooks.resource.URIResourceLocator;
 import org.smooks.support.DomUtils;
@@ -195,7 +196,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
                 assertValidationException(result, executionContext);
             }
         } else {
-            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeFragment(element), this);
+            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorVisitorMemento(new NodeFragment(element), this);
             executionContext.getMementoCaretaker().restore(textAccumulatorMemento);
 
             OnFailResultImpl result = _validate(textAccumulatorMemento.getText(), executionContext);
@@ -360,7 +361,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
         if (targetAttribute == null) {
             // The selected text is not an attribute, which means it's the element text,
             // which means we need to turn on text accumulation for SAX...
-            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorMemento(new NodeFragment(characterData.getParentNode()), this);
+            TextAccumulatorMemento textAccumulatorMemento = new TextAccumulatorVisitorMemento(new NodeFragment(characterData.getParentNode()), this);
             executionContext.getMementoCaretaker().restore(textAccumulatorMemento);
             textAccumulatorMemento.accumulateText(characterData.getTextContent());
             executionContext.getMementoCaretaker().capture(textAccumulatorMemento);
