@@ -59,6 +59,7 @@ import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.engine.delivery.fragment.NodeFragment;
 import org.smooks.engine.memento.TextAccumulatorMemento;
 import org.smooks.engine.memento.TextAccumulatorVisitorMemento;
+import org.smooks.engine.resource.config.xpath.IndexedSelectorPath;
 import org.smooks.engine.resource.config.xpath.step.AttributeSelectorStep;
 import org.smooks.io.payload.FilterResult;
 import org.smooks.resource.URIResourceLocator;
@@ -173,8 +174,10 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
      */
     @PostConstruct
     public void postConstruct() {
-        if (resourceConfig.getSelectorPath().getTargetSelectorStep() instanceof AttributeSelectorStep) {
-            targetAttribute = ((AttributeSelectorStep) resourceConfig.getSelectorPath().getTargetSelectorStep()).getQName().getLocalPart();
+        if (resourceConfig.getSelectorPath() instanceof IndexedSelectorPath &&
+                ((IndexedSelectorPath) resourceConfig.getSelectorPath()).getTargetSelectorStep() instanceof AttributeSelectorStep) {
+            targetAttribute = ((AttributeSelectorStep) ((IndexedSelectorPath) resourceConfig.getSelectorPath()).
+                    getTargetSelectorStep()).getQName().getLocalPart();
         } else {
             targetAttribute = null;
         }
