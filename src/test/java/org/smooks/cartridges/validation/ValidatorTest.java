@@ -42,8 +42,8 @@
  */
 package org.smooks.cartridges.validation;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.smooks.Smooks;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.cartridges.rules.regex.RegexProvider;
@@ -56,7 +56,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for {@link Validator}
@@ -68,8 +68,8 @@ public class ValidatorTest
     private MockApplicationContext appContext;
     private RegexProvider regexProvider;
 
-    @Before
-    public void setup()
+    @BeforeEach
+    public void beforeEach()
     {
         appContext = new MockApplicationContext();
         regexProvider = new RegexProvider("/smooks-regex.properties");
