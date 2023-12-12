@@ -45,7 +45,6 @@ package org.smooks.cartridges.validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smooks.cartridges.rules.RuleEvalResult;
-import org.smooks.tck.MockExecutionContext;
 
 import java.util.List;
 import java.util.Locale;
@@ -58,21 +57,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidationResultsTest
-{
-    private MockExecutionContext context;
+public class ValidationResultsTestCase {
     private MockResult result;
 
     @BeforeEach
-    public void beforeEach()
-    {
-        context = new MockExecutionContext();
+    public void beforeEach() {
         result = new MockResult("ruleName", "provider", true);
     }
 
     @Test
-    public void addWarn()
-    {
+    public void addWarn() {
         ValidationResult validationResult = new ValidationResult();
 
         validationResult.addResult(new MockOnFailResult(result), OnFail.WARN);
@@ -85,35 +79,30 @@ public class ValidationResultsTest
         assertEquals(2, warnings.size());
     }
 
-    private class MockResult implements RuleEvalResult
-    {
+    private class MockResult implements RuleEvalResult {
         private String ruleName;
         private String name;
         private boolean matched;
 
-        public MockResult(final String ruleName, final String name, final boolean matched)
-        {
+        public MockResult(final String ruleName, final String name, final boolean matched) {
             this.ruleName = ruleName;
             this.name = name;
             this.matched = matched;
         }
 
-        public void setRuleName(final String ruleName)
-        {
+        public void setRuleName(final String ruleName) {
             this.ruleName = ruleName;
         }
 
-        public String getRuleName()
-        {
+        public String getRuleName() {
             return ruleName;
         }
 
-        public void setRuleProviderName(final String name)
-        {
+        public void setRuleProviderName(final String name) {
             this.name = name;
         }
-        public String getRuleProviderName()
-        {
+
+        public String getRuleProviderName() {
             return name;
         }
 
@@ -121,19 +110,16 @@ public class ValidationResultsTest
             return null;
         }
 
-        public void setMatched(final boolean matched)
-        {
+        public void setMatched(final boolean matched) {
             this.matched = matched;
         }
 
-        public boolean matched()
-        {
+        public boolean matched() {
             return matched;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "MockResult";
         }
     }
