@@ -45,8 +45,10 @@ package org.smooks.cartridges.validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smooks.Smooks;
+import org.smooks.api.ApplicationContext;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.cartridges.rules.regex.RegexProvider;
+import org.smooks.engine.DefaultApplicationContextBuilder;
 import org.smooks.io.payload.FilterResult;
 import org.smooks.io.payload.StringSource;
 import org.smooks.tck.MockApplicationContext;
@@ -54,7 +56,11 @@ import org.smooks.tck.MockExecutionContext;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,21 +69,18 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidatorTest
-{
+public class ValidatorTestCase {
     private MockApplicationContext appContext;
     private RegexProvider regexProvider;
 
     @BeforeEach
-    public void beforeEach()
-    {
+    public void beforeEach() {
         appContext = new MockApplicationContext();
         regexProvider = new RegexProvider("/smooks-regex.properties");
     }
 
     @Test
-    public void configure()
-    {
+    public void configure() {
         final String ruleName = "addressing.email";
         final Validator validator = new Validator(ruleName, OnFail.WARN);
 
@@ -86,8 +89,7 @@ public class ValidatorTest
     }
 
     @Test
-    public void validateWarn()
-    {
+    public void testValidateWarn() {
         regexProvider.setName("addressing");
         RuleProviderAccessor.add(appContext, regexProvider);
 
@@ -107,8 +109,7 @@ public class ValidatorTest
     }
 
     @Test
-    public void validateOks()
-    {
+    public void testValidateOks() {
         regexProvider.setName("addressing");
         RuleProviderAccessor.add(appContext, regexProvider);
 
@@ -128,8 +129,7 @@ public class ValidatorTest
     }
 
     @Test
-    public void validateErrors()
-    {
+    public void testValidateErrors() {
         regexProvider.setName("addressing");
         RuleProviderAccessor.add(appContext, regexProvider);
 
@@ -149,8 +149,7 @@ public class ValidatorTest
     }
 
     @Test
-    public void validateFatal()
-    {
+    public void testValidateFatal() {
         regexProvider.setName("addressing");
         RuleProviderAccessor.add(appContext, regexProvider);
 
@@ -159,14 +158,11 @@ public class ValidatorTest
         final Validator validator = new Validator(ruleName, OnFail.FATAL).setAppContext(appContext);
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        try
-        {
+        try {
             validator.validate(data, executionContext);
             fail("A ValidationException should have been thrown");
-        }
-        catch (final Exception e)
-        {
-            assertTrue( e instanceof ValidationException);
+        } catch (final Exception e) {
+            assertTrue(e instanceof ValidationException);
 
             OnFailResult onFailResult = ((ValidationException) e).getOnFailResult();
             assertNotNull(onFailResult);
@@ -174,23 +170,64 @@ public class ValidatorTest
              *  [null] is the failFragmentPath. This test method only exercises the validate method, hence the
              *  frailFramentPath, which is set in visitAfte, is never set.
              */
-		    String expected = "[null] RegexRuleEvalResult, matched=false, providerName=addressing, ruleName=email, text=xyz, pattern=\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*([,;]\\s*\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*)*";
+            String expected = "[null] RegexRuleEvalResult, matched=false, providerName=addressing, ruleName=email, text=xyz, pattern=\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*([,;]\\s*\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*)*";
             assertEquals(expected, onFailResult.getMessage());
             assertEquals("A FATAL validation failure has occured " + expected, e.getMessage());
         }
     }
 
     @Test
-    public void test_xml_config_01() throws IOException, SAXException {
+    public void testXmlConfig01() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("config-01.xml"));
         ValidationResult result = new ValidationResult();
-        
+
         smooks.filterSource(new StringSource("<a><b x='Xx'>11</b><b x='C'>Aaa</b></a>"), result);
 
         List<OnFailResult> warnings = result.getWarnings();
         assertEquals(2, warnings.size());
         assertEquals("RegexRuleEvalResult, matched=false, providerName=regex, ruleName=custom, text=11, pattern=[A-Z]([a-z])+", warnings.get(0).getFailRuleResult().toString());
         assertEquals("RegexRuleEvalResult, matched=false, providerName=regex, ruleName=custom, text=C, pattern=[A-Z]([a-z])+", warnings.get(1).getFailRuleResult().toString());
+    }
+
+    @Test
+    public void testValidateGivenAppContextWithClassLoader() {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ApplicationContext applicationContext = new DefaultApplicationContextBuilder().setClassLoader(new ClassLoader() {
+            @Override
+            public Class<?> loadClass(String name) throws ClassNotFoundException {
+                if (name.equals("//i18n/smooks-regex")) {
+                    countDownLatch.countDown();
+                }
+                return super.loadClass(name);
+            }
+        }).build();
+        regexProvider.setName("addressing");
+        RuleProviderAccessor.add(applicationContext, regexProvider);
+
+        String ruleName = "addressing.email";
+        OnFail onFail = OnFail.values()[new Random().nextInt(OnFail.values().length)];
+        Validator validator = new Validator(ruleName, onFail).setAppContext(applicationContext);
+        ValidationResult result = new ValidationResult();
+
+        MockExecutionContext executionContext = new MockExecutionContext();
+        FilterResult.setResults(executionContext, result);
+        try {
+            validator.validate("xyz", executionContext);
+            switch (onFail) {
+                case OK:
+                    result.getOKs().get(0).getMessage();
+                    break;
+                case WARN:
+                    result.getWarnings().get(0).getMessage();
+                    break;
+                case ERROR:
+                    result.getErrors().get(0).getMessage();
+                    break;
+            }
+        } catch (ValidationException e) {
+            result.getFatal().getMessage();
+        }
+        assertEquals(0, countDownLatch.getCount());
     }
 
 }

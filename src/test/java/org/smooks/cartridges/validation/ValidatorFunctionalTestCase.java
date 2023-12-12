@@ -61,12 +61,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidatorFunctionalTest {
+public class ValidatorFunctionalTestCase {
     @Test
     public void filter() throws IOException, SAXException {
-        InputStream config = null;
-        try {
-            config = getSmooksConfig("smooks-validation-config.xml");
+        try (InputStream config = getSmooksConfig("smooks-validation-config.xml")) {
             final Smooks smooks = new Smooks(config);
 
             final String xml = readStringFromFile("validation-test.xml");
@@ -82,10 +80,6 @@ public class ValidatorFunctionalTest {
             assertEquals(1, warnings.size());
             assertEquals(0, validationResult.getOKs().size());
             assertEquals(0, validationResult.getErrors().size());
-
-        } finally {
-            if (config != null)
-                config.close();
         }
     }
 

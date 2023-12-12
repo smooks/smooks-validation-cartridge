@@ -42,6 +42,7 @@
  */
 package org.smooks.cartridges.validation;
 
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smooks.api.ApplicationContext;
@@ -68,13 +69,19 @@ import org.smooks.support.FreeMarkerTemplate;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 
-import jakarta.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 /**
  *
@@ -453,7 +460,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
          */
         private ResourceBundle getMessageBundle(final Locale locale) {
             try {
-                return ResourceBundle.getBundle(messageBundleBaseName, locale, new ResourceBundleClassLoader());
+                return ResourceBundle.getBundle(messageBundleBaseName, locale, new ResourceBundleClassLoader(appContext.getClassLoader()));
             } catch (final MissingResourceException e) {
                 LOGGER.warn("Failed to load Validation rule message bundle '" + messageBundleBaseName + "'.  This resource must be on the classpath!", e);
             }
@@ -468,6 +475,52 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
     }
 
     private static class ResourceBundleClassLoader extends ClassLoader {
+        private final ClassLoader classLoader;
+
+        public ResourceBundleClassLoader(ClassLoader classLoader) {
+            this.classLoader = classLoader;
+        }
+
+        @Override
+        public Class<?> loadClass(String name) throws ClassNotFoundException {
+            return classLoader.loadClass(name);
+        }
+
+        @Override
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            return super.findClass(name);
+        }
+
+        @Override
+        public URL getResource(String name) {
+            return classLoader.getResource(name);
+        }
+
+        @Override
+        public Enumeration<URL> getResources(String name) throws IOException {
+            return classLoader.getResources(name);
+        }
+
+        @Override
+        public void setDefaultAssertionStatus(boolean enabled) {
+            classLoader.setDefaultAssertionStatus(enabled);
+        }
+
+        @Override
+        public void setPackageAssertionStatus(String packageName, boolean enabled) {
+            classLoader.setPackageAssertionStatus(packageName, enabled);
+        }
+
+        @Override
+        public void setClassAssertionStatus(String className, boolean enabled) {
+            classLoader.setClassAssertionStatus(className, enabled);
+        }
+
+        @Override
+        public void clearAssertionStatus() {
+            classLoader.clearAssertionStatus();
+        }
+
         @Override
         public InputStream getResourceAsStream(String name) {
             try {

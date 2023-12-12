@@ -53,8 +53,7 @@ import java.util.*;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidationResult extends FilterResult
-{
+public class ValidationResult extends FilterResult {
     /**
      * The validation result Map, keyed by OnFail Type.
      */
@@ -63,16 +62,15 @@ public class ValidationResult extends FilterResult
     /**
      * Fatal failure result.
      */
-    private OnFailResult fatal; 
+    private OnFailResult fatal;
 
     /**
      * Public default constructor.
      */
-    public ValidationResult()
-    {
-        results.put(OnFail.OK, new ArrayList<OnFailResult>());
-        results.put(OnFail.WARN, new ArrayList<OnFailResult>());
-        results.put(OnFail.ERROR, new ArrayList<OnFailResult>());
+    public ValidationResult() {
+        results.put(OnFail.OK, new ArrayList<>());
+        results.put(OnFail.WARN, new ArrayList<>());
+        results.put(OnFail.ERROR, new ArrayList<>());
     }
 
     /**
@@ -81,8 +79,7 @@ public class ValidationResult extends FilterResult
      *
      * @return List {@link OnFailResult} reported at {@link OnFail#OK}.
      */
-    public List<OnFailResult> getOKs()
-    {
+    public List<OnFailResult> getOKs() {
         return Collections.unmodifiableList(results.get(OnFail.OK));
     }
 
@@ -92,8 +89,7 @@ public class ValidationResult extends FilterResult
      *
      * @return List of {@link OnFailResult} reported at {@link OnFail#WARN}.
      */
-    public List<OnFailResult> getWarnings()
-    {
+    public List<OnFailResult> getWarnings() {
         return Collections.unmodifiableList(results.get(OnFail.WARN));
     }
 
@@ -103,8 +99,7 @@ public class ValidationResult extends FilterResult
      *
      * @return List of {@link OnFailResult} reported at {@link OnFail#ERROR}.
      */
-    public List<OnFailResult> getErrors()
-    {
+    public List<OnFailResult> getErrors() {
         return Collections.unmodifiableList(results.get(OnFail.ERROR));
     }
 
@@ -115,24 +110,24 @@ public class ValidationResult extends FilterResult
      *
      * @return {@link OnFail#FATAL} {@link OnFailResult} if one occured, otherwise null.
      */
-    public OnFailResult getFatal()
-    {
+    public OnFailResult getFatal() {
         return fatal;
     }
 
     /**
      * Get the total number of failures on this {@link ValidationResult} instance.
+     *
      * @return The total number of failures on this {@link ValidationResult} instance.
      */
     public int getNumFailures() {
         int numFailures = 0;
         Collection<List<OnFailResult>> values = results.values();
 
-        for(List<OnFailResult> value : values) {
+        for (List<OnFailResult> value : values) {
             numFailures += value.size();
         }
 
-        if(fatal != null) {
+        if (fatal != null) {
             numFailures++;
         }
 
@@ -145,12 +140,11 @@ public class ValidationResult extends FilterResult
      * @param result The {@link OnFailResult}. Cannot be null.
      * @param onFail The {@link OnFail} level for which this rule should be reported.
      */
-    protected void addResult(final OnFailResult result, final OnFail onFail)
-    {
+    protected void addResult(final OnFailResult result, final OnFail onFail) {
         AssertArgument.isNotNull(result, "result");
         AssertArgument.isNotNull(onFail, "onFail");
 
-        if(onFail == OnFail.FATAL) {
+        if (onFail == OnFail.FATAL) {
             fatal = result;
         } else {
             // Add the OnFailResult to the specific list.
@@ -168,7 +162,7 @@ public class ValidationResult extends FilterResult
         stringBuilder.append("ERROR Failures:\n");
         addResultMessages(getErrors(), stringBuilder);
         stringBuilder.append("FATAL Failure:\n");
-        if(fatal != null) {
+        if (fatal != null) {
             stringBuilder.append("\t" + fatal.getMessage() + "\n");
         } else {
             stringBuilder.append("\t(none)\n");
@@ -178,10 +172,10 @@ public class ValidationResult extends FilterResult
     }
 
     private void addResultMessages(List<OnFailResult> results, StringBuilder stringBuilder) {
-        if(results.isEmpty()) {
+        if (results.isEmpty()) {
             stringBuilder.append("\t(none)\n");
         } else {
-            for(OnFailResult result : results) {
+            for (OnFailResult result : results) {
                 stringBuilder.append("\t- " + result.getMessage() + "\n");
             }
         }
