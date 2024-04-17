@@ -51,13 +51,11 @@ import org.smooks.cartridges.rules.regex.RegexProvider;
 import org.smooks.engine.DefaultApplicationContextBuilder;
 import org.smooks.io.payload.FilterResult;
 import org.smooks.io.payload.StringSource;
-import org.smooks.tck.MockApplicationContext;
-import org.smooks.tck.MockExecutionContext;
+import org.smooks.testkit.MockApplicationContext;
+import org.smooks.testkit.MockExecutionContext;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
