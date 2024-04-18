@@ -114,7 +114,7 @@ https://github.com/smooks/smooks-examples/tree/v1.0.2/validation-basic[See the V
 <dependency>
     <groupId>org.smooks.cartridges</groupId>
     <artifactId>smooks-validation-cartridge</artifactId>
-    <version>2.0.0-RC3</version>
+    <version>2.0.0-RC4</version>
 </dependency>
 ----
 // end::smooks-validation-cartridge[]
