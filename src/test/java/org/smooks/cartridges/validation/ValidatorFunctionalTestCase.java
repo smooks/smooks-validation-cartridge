@@ -45,8 +45,8 @@ package org.smooks.cartridges.validation;
 import org.junit.jupiter.api.Test;
 import org.smooks.Smooks;
 import org.smooks.api.ExecutionContext;
-import org.smooks.io.payload.StringResult;
-import org.smooks.io.payload.StringSource;
+import org.smooks.io.sink.StringSink;
+import org.smooks.io.source.StringSource;
 import org.smooks.support.StreamUtils;
 import org.xml.sax.SAXException;
 
@@ -70,10 +70,10 @@ public class ValidatorFunctionalTestCase {
             final String xml = readStringFromFile("validation-test.xml");
 
             final ExecutionContext context = smooks.createExecutionContext();
-            final StringResult result = new StringResult();
-            final ValidationResult validationResult = new ValidationResult();
+            final StringSink sink = new StringSink();
+            final ValidationSink validationResult = new ValidationSink();
 
-            smooks.filterSource(context, new StringSource(xml), result, validationResult);
+            smooks.filterSource(context, new StringSource(xml), sink, validationResult);
 
             final List<OnFailResult> warnings = validationResult.getWarnings();
 

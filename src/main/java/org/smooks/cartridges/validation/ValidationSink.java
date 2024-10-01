@@ -43,9 +43,14 @@
 package org.smooks.cartridges.validation;
 
 import org.smooks.assertion.AssertArgument;
-import org.smooks.io.payload.FilterResult;
+import org.smooks.io.sink.FilterSink;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * ValidationResult object for capturing validation failures
@@ -53,11 +58,11 @@ import java.util.*;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidationResult extends FilterResult {
+public class ValidationSink extends FilterSink {
     /**
      * The validation result Map, keyed by OnFail Type.
      */
-    private Map<OnFail, List<OnFailResult>> results = new HashMap<OnFail, List<OnFailResult>>();
+    private Map<OnFail, List<OnFailResult>> results = new HashMap<>();
 
     /**
      * Fatal failure result.
@@ -67,7 +72,7 @@ public class ValidationResult extends FilterResult {
     /**
      * Public default constructor.
      */
-    public ValidationResult() {
+    public ValidationSink() {
         results.put(OnFail.OK, new ArrayList<>());
         results.put(OnFail.WARN, new ArrayList<>());
         results.put(OnFail.ERROR, new ArrayList<>());
@@ -115,9 +120,9 @@ public class ValidationResult extends FilterResult {
     }
 
     /**
-     * Get the total number of failures on this {@link ValidationResult} instance.
+     * Get the total number of failures on this {@link ValidationSink} instance.
      *
-     * @return The total number of failures on this {@link ValidationResult} instance.
+     * @return The total number of failures on this {@link ValidationSink} instance.
      */
     public int getNumFailures() {
         int numFailures = 0;

@@ -49,8 +49,8 @@ import org.smooks.api.ApplicationContext;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.cartridges.rules.regex.RegexProvider;
 import org.smooks.engine.DefaultApplicationContextBuilder;
-import org.smooks.io.payload.FilterResult;
-import org.smooks.io.payload.StringSource;
+import org.smooks.io.sink.FilterSink;
+import org.smooks.io.source.StringSource;
 import org.smooks.testkit.MockApplicationContext;
 import org.smooks.testkit.MockExecutionContext;
 import org.xml.sax.SAXException;
@@ -93,10 +93,10 @@ public class ValidatorTestCase {
 
         final String ruleName = "addressing.email";
         final Validator validator = new Validator(ruleName, OnFail.WARN).setAppContext(appContext);
-        final ValidationResult result = new ValidationResult();
+        final ValidationSink result = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterResult.setResults(executionContext, result);
+        FilterSink.setSinks(executionContext, result);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
@@ -113,10 +113,10 @@ public class ValidatorTestCase {
 
         final String ruleName = "addressing.email";
         final Validator validator = new Validator(ruleName, OnFail.OK).setAppContext(appContext);
-        final ValidationResult result = new ValidationResult();
+        final ValidationSink result = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterResult.setResults(executionContext, result);
+        FilterSink.setSinks(executionContext, result);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
@@ -133,10 +133,10 @@ public class ValidatorTestCase {
 
         final String ruleName = "addressing.email";
         final Validator validator = new Validator(ruleName, OnFail.ERROR).setAppContext(appContext);
-        final ValidationResult result = new ValidationResult();
+        final ValidationSink result = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterResult.setResults(executionContext, result);
+        FilterSink.setSinks(executionContext, result);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
@@ -177,7 +177,7 @@ public class ValidatorTestCase {
     @Test
     public void testXmlConfig01() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("config-01.xml"));
-        ValidationResult result = new ValidationResult();
+        ValidationSink result = new ValidationSink();
 
         smooks.filterSource(new StringSource("<a><b x='Xx'>11</b><b x='C'>Aaa</b></a>"), result);
 
@@ -205,10 +205,10 @@ public class ValidatorTestCase {
         String ruleName = "addressing.email";
         OnFail onFail = OnFail.values()[new Random().nextInt(OnFail.values().length)];
         Validator validator = new Validator(ruleName, onFail).setAppContext(applicationContext);
-        ValidationResult result = new ValidationResult();
+        ValidationSink result = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterResult.setResults(executionContext, result);
+        FilterSink.setSinks(executionContext, result);
         try {
             validator.validate("xyz", executionContext);
             switch (onFail) {

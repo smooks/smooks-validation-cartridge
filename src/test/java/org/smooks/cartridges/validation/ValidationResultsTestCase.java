@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * Test for {@link ValidationResult}.
+ * Test for {@link ValidationSink}.
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
@@ -67,7 +67,7 @@ public class ValidationResultsTestCase {
 
     @Test
     public void addWarn() {
-        ValidationResult validationResult = new ValidationResult();
+        ValidationSink validationResult = new ValidationSink();
 
         validationResult.addResult(new MockOnFailResult(result), OnFail.WARN);
         List<OnFailResult> warnings = validationResult.getWarnings();
