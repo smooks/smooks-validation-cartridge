@@ -74,7 +74,7 @@ When a RuleBase is referenced in Smooks you use a composite rule name in the fol
 
 == Validation Results
 
-Validation results are captured by the Smooks.filterSource by specifying a `+ValidationResult+` instance in the `+filterSource+` method call. When the `+filterSource+` method returns, the `+ValidationResult+` instance will contain all validation data.
+Validation results are captured by the Smooks.filterSource by specifying a `+ValidationSink+` instance in the `+filterSource+` method call. When the `+filterSource+` method returns, the `+ValidationSink+` instance will contain all validation data.
 
 An example of executing Smooks in order to perform message fragment validation is as follows:
 
@@ -88,7 +88,7 @@ List<OnFailResult> errors = validationResult.getErrors();
 List<OnFailResult> warnings = validationResult.getWarnings();
 ----
 
-As you can see from the above code, individual warning, error, and other validation results are made available from the `+ValidationResult+` object in the form of `+OnFailResult+` instances. The `+OnFailResult+` object provides details about an individual failure.
+As you can see from the above code, individual warning, error, and other validation results are made available from the `+ValidationSink+` object in the form of `+OnFailResult+` instances. The `+OnFailResult+` object provides details about an individual failure.
 
 == Localized Validation Messages
 

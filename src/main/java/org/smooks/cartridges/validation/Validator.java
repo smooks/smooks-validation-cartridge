@@ -62,7 +62,7 @@ import org.smooks.engine.memento.TextAccumulatorMemento;
 import org.smooks.engine.memento.TextAccumulatorVisitorMemento;
 import org.smooks.engine.resource.config.xpath.IndexedSelectorPath;
 import org.smooks.engine.resource.config.xpath.step.AttributeSelectorStep;
-import org.smooks.io.payload.FilterResult;
+import org.smooks.io.sink.FilterSink;
 import org.smooks.resource.URIResourceLocator;
 import org.smooks.support.DomUtils;
 import org.smooks.support.FreeMarkerTemplate;
@@ -164,7 +164,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
      */
     private String messageBundleBaseName;
     /**
-     * The maximum number of failures permitted per {@link ValidationResult} instance..
+     * The maximum number of failures permitted per {@link ValidationSink} instance..
      */
     private int maxFails;
 
@@ -224,7 +224,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
             throw new ValidationException("A FATAL validation failure has occured " + result, result);
         }
 
-        ValidationResult validationResult = getValidationResult(executionContext);
+        ValidationSink validationResult = getValidationResult(executionContext);
         if (validationResult.getNumFailures() > maxFails) {
             throw new ValidationException("The maximum number of allowed validation failures (" + maxFails + ") has been exceeded.", result);
         }
@@ -267,7 +267,7 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
         }
 
         if (!result.matched()) {
-            ValidationResult validationResult = getValidationResult(executionContext);
+            ValidationSink validationResult = getValidationResult(executionContext);
             OnFailResultImpl onFailResult = new OnFailResultImpl();
             onFailResult.setRuleResult(result);
             onFailResult.setBeanContext(executionContext.getBeanContext().getBeanMap());
@@ -279,12 +279,12 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
         return null;
     }
 
-    private ValidationResult getValidationResult(ExecutionContext executionContext) {
-        ValidationResult validationResult = (ValidationResult) FilterResult.getResult(executionContext, ValidationResult.class);
+    private ValidationSink getValidationResult(ExecutionContext executionContext) {
+        ValidationSink validationResult = (ValidationSink) FilterSink.getSink(executionContext, ValidationSink.class);
         // Create a new ValidationResult if one was not available in the execution context.
         // This would be the case for example if one as not specified to Smooks filter method.
         if (validationResult == null) {
-            validationResult = new ValidationResult();
+            validationResult = new ValidationSink();
         }
 
         return validationResult;

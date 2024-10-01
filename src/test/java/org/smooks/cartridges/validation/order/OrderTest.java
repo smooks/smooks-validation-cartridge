@@ -46,10 +46,10 @@ import org.junit.jupiter.api.Test;
 import org.smooks.Smooks;
 import org.smooks.api.SmooksException;
 import org.smooks.cartridges.validation.OnFailResult;
-import org.smooks.cartridges.validation.ValidationResult;
+import org.smooks.cartridges.validation.ValidationSink;
+import org.smooks.io.source.StreamSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.util.List;
 
@@ -64,10 +64,10 @@ public class OrderTest {
     @Test
     public void test_01() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("smooks-config.xml"));
-        ValidationResult result = new ValidationResult();
+        ValidationSink result = new ValidationSink();
 
         try {
-            smooks.filterSource(new StreamSource(getClass().getResourceAsStream("order-message-01.xml")), result);
+            smooks.filterSource(new StreamSource<>(getClass().getResourceAsStream("order-message-01.xml")), result);
 
             assertEquals(4, result.getNumFailures());
 
@@ -89,10 +89,10 @@ public class OrderTest {
     @Test
     public void test_02() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("smooks-config.xml"));
-        ValidationResult result = new ValidationResult();
+        ValidationSink result = new ValidationSink();
 
         try {
-            smooks.filterSource(new StreamSource(getClass().getResourceAsStream("order-message-02.xml")), result);
+            smooks.filterSource(new StreamSource<>(getClass().getResourceAsStream("order-message-02.xml")), result);
             fail("Expected SmooksException");
         } catch (SmooksException e) {
             assertEquals("The maximum number of allowed validation failures (5) has been exceeded.", e.getCause().getMessage());
@@ -105,10 +105,10 @@ public class OrderTest {
     @Test
     public void test_03() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("smooks-config.xml"));
-        ValidationResult result = new ValidationResult();
+        ValidationSink result = new ValidationSink();
 
         try {
-            smooks.filterSource(new StreamSource(getClass().getResourceAsStream("order-message-03.xml")), result);
+            smooks.filterSource(new StreamSource<>(getClass().getResourceAsStream("order-message-03.xml")), result);
             fail("Expected SmooksException");
         } catch (SmooksException e) {
             assertEquals("A FATAL validation failure has occured [/order/order-items/order-item/fail] RegexRuleEvalResult, matched=false, providerName=product, ruleName=failProduct, text=true, pattern=false", e.getCause().getMessage());
