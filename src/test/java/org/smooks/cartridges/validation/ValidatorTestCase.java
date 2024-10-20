@@ -93,17 +93,17 @@ public class ValidatorTestCase {
 
         final String ruleName = "addressing.email";
         final Validator validator = new Validator(ruleName, OnFail.WARN).setAppContext(appContext);
-        final ValidationSink result = new ValidationSink();
+        final ValidationSink sink = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterSink.setSinks(executionContext, result);
+        FilterSink.setSinks(executionContext, sink);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
 
-        assertEquals(0, result.getOKs().size());
-        assertEquals(3, result.getWarnings().size());
-        assertEquals(0, result.getErrors().size());
+        assertEquals(0, sink.getOKs().size());
+        assertEquals(3, sink.getWarnings().size());
+        assertEquals(0, sink.getErrors().size());
     }
 
     @Test
@@ -113,17 +113,17 @@ public class ValidatorTestCase {
 
         final String ruleName = "addressing.email";
         final Validator validator = new Validator(ruleName, OnFail.OK).setAppContext(appContext);
-        final ValidationSink result = new ValidationSink();
+        final ValidationSink sink = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterSink.setSinks(executionContext, result);
+        FilterSink.setSinks(executionContext, sink);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
 
-        assertEquals(3, result.getOKs().size());
-        assertEquals(0, result.getWarnings().size());
-        assertEquals(0, result.getErrors().size());
+        assertEquals(3, sink.getOKs().size());
+        assertEquals(0, sink.getWarnings().size());
+        assertEquals(0, sink.getErrors().size());
     }
 
     @Test
@@ -133,17 +133,17 @@ public class ValidatorTestCase {
 
         final String ruleName = "addressing.email";
         final Validator validator = new Validator(ruleName, OnFail.ERROR).setAppContext(appContext);
-        final ValidationSink result = new ValidationSink();
+        final ValidationSink sink = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterSink.setSinks(executionContext, result);
+        FilterSink.setSinks(executionContext, sink);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
 
-        assertEquals(0, result.getOKs().size());
-        assertEquals(0, result.getWarnings().size());
-        assertEquals(3, result.getErrors().size());
+        assertEquals(0, sink.getOKs().size());
+        assertEquals(0, sink.getWarnings().size());
+        assertEquals(3, sink.getErrors().size());
     }
 
     @Test
@@ -160,7 +160,7 @@ public class ValidatorTestCase {
             validator.validate(data, executionContext);
             fail("A ValidationException should have been thrown");
         } catch (final Exception e) {
-            assertTrue(e instanceof ValidationException);
+            assertInstanceOf(ValidationException.class, e);
 
             OnFailResult onFailResult = ((ValidationException) e).getOnFailResult();
             assertNotNull(onFailResult);
@@ -177,11 +177,11 @@ public class ValidatorTestCase {
     @Test
     public void testXmlConfig01() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("config-01.xml"));
-        ValidationSink result = new ValidationSink();
+        ValidationSink sink = new ValidationSink();
 
-        smooks.filterSource(new StringSource("<a><b x='Xx'>11</b><b x='C'>Aaa</b></a>"), result);
+        smooks.filterSource(new StringSource("<a><b x='Xx'>11</b><b x='C'>Aaa</b></a>"), sink);
 
-        List<OnFailResult> warnings = result.getWarnings();
+        List<OnFailResult> warnings = sink.getWarnings();
         assertEquals(2, warnings.size());
         assertEquals("RegexRuleEvalResult, matched=false, providerName=regex, ruleName=custom, text=11, pattern=[A-Z]([a-z])+", warnings.get(0).getFailRuleResult().toString());
         assertEquals("RegexRuleEvalResult, matched=false, providerName=regex, ruleName=custom, text=C, pattern=[A-Z]([a-z])+", warnings.get(1).getFailRuleResult().toString());
@@ -205,25 +205,25 @@ public class ValidatorTestCase {
         String ruleName = "addressing.email";
         OnFail onFail = OnFail.values()[new Random().nextInt(OnFail.values().length)];
         Validator validator = new Validator(ruleName, onFail).setAppContext(applicationContext);
-        ValidationSink result = new ValidationSink();
+        ValidationSink sink = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterSink.setSinks(executionContext, result);
+        FilterSink.setSinks(executionContext, sink);
         try {
             validator.validate("xyz", executionContext);
             switch (onFail) {
                 case OK:
-                    result.getOKs().get(0).getMessage();
+                    sink.getOKs().get(0).getMessage();
                     break;
                 case WARN:
-                    result.getWarnings().get(0).getMessage();
+                    sink.getWarnings().get(0).getMessage();
                     break;
                 case ERROR:
-                    result.getErrors().get(0).getMessage();
+                    sink.getErrors().get(0).getMessage();
                     break;
             }
         } catch (ValidationException e) {
-            result.getFatal().getMessage();
+            sink.getFatal().getMessage();
         }
         assertEquals(0, countDownLatch.getCount());
     }
