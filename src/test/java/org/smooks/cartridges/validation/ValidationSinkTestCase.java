@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidationResultsTestCase {
+public class ValidationSinkTestCase {
     private MockResult result;
 
     @BeforeEach
@@ -67,15 +67,15 @@ public class ValidationResultsTestCase {
 
     @Test
     public void addWarn() {
-        ValidationSink validationResult = new ValidationSink();
+        ValidationSink validationSink = new ValidationSink();
 
-        validationResult.addResult(new MockOnFailResult(result), OnFail.WARN);
-        List<OnFailResult> warnings = validationResult.getWarnings();
+        validationSink.addResult(new MockOnFailResult(result), OnFail.WARN);
+        List<OnFailResult> warnings = validationSink.getWarnings();
         assertFalse(warnings.isEmpty());
         assertEquals(1, warnings.size());
 
-        validationResult.addResult(new MockOnFailResult(result), OnFail.WARN);
-        warnings = validationResult.getWarnings();
+        validationSink.addResult(new MockOnFailResult(result), OnFail.WARN);
+        warnings = validationSink.getWarnings();
         assertEquals(2, warnings.size());
     }
 

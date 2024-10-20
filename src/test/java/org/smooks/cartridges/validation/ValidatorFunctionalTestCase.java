@@ -71,15 +71,15 @@ public class ValidatorFunctionalTestCase {
 
             final ExecutionContext context = smooks.createExecutionContext();
             final StringSink sink = new StringSink();
-            final ValidationSink validationResult = new ValidationSink();
+            final ValidationSink validationSink = new ValidationSink();
 
-            smooks.filterSource(context, new StringSource(xml), sink, validationResult);
+            smooks.filterSource(context, new StringSource(xml), sink, validationSink);
 
-            final List<OnFailResult> warnings = validationResult.getWarnings();
+            final List<OnFailResult> warnings = validationSink.getWarnings();
 
             assertEquals(1, warnings.size());
-            assertEquals(0, validationResult.getOKs().size());
-            assertEquals(0, validationResult.getErrors().size());
+            assertEquals(0, validationSink.getOKs().size());
+            assertEquals(0, validationSink.getErrors().size());
         }
     }
 
