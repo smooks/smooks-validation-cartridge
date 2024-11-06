@@ -46,16 +46,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smooks.Smooks;
 import org.smooks.api.ApplicationContext;
+import org.smooks.api.io.Sink;
 import org.smooks.cartridges.rules.RuleProviderAccessor;
 import org.smooks.cartridges.rules.regex.RegexProvider;
 import org.smooks.engine.DefaultApplicationContextBuilder;
-import org.smooks.io.sink.FilterSink;
 import org.smooks.io.source.StringSource;
 import org.smooks.testkit.MockApplicationContext;
 import org.smooks.testkit.MockExecutionContext;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -96,7 +97,7 @@ public class ValidatorTestCase {
         final ValidationSink sink = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterSink.setSinks(executionContext, sink);
+        executionContext.put(Sink.SINKS_TYPED_KEY, Collections.singletonList(sink));
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
@@ -116,7 +117,7 @@ public class ValidatorTestCase {
         final ValidationSink sink = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterSink.setSinks(executionContext, sink);
+        executionContext.put(Sink.SINKS_TYPED_KEY, Collections.singletonList(sink));
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
@@ -136,7 +137,7 @@ public class ValidatorTestCase {
         final ValidationSink sink = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterSink.setSinks(executionContext, sink);
+        executionContext.put(Sink.SINKS_TYPED_KEY, Collections.singletonList(sink));
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
         validator.validate("xyz", executionContext);
@@ -208,7 +209,7 @@ public class ValidatorTestCase {
         ValidationSink sink = new ValidationSink();
 
         MockExecutionContext executionContext = new MockExecutionContext();
-        FilterSink.setSinks(executionContext, sink);
+        executionContext.put(Sink.SINKS_TYPED_KEY, Collections.singletonList(sink));
         try {
             validator.validate("xyz", executionContext);
             switch (onFail) {

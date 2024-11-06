@@ -42,8 +42,8 @@
  */
 package org.smooks.cartridges.validation;
 
+import org.smooks.api.io.Sink;
 import org.smooks.assertion.AssertArgument;
-import org.smooks.io.sink.FilterSink;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +58,7 @@ import java.util.Map;
  *
  * @author <a href="mailto:danielbevenius@gmail.com">Daniel Bevenius</a>
  */
-public class ValidationSink extends FilterSink {
+public class ValidationSink implements Sink {
     /**
      * The validation result Map, keyed by OnFail Type.
      */
