@@ -49,6 +49,7 @@ import org.smooks.api.ApplicationContext;
 import org.smooks.api.ExecutionContext;
 import org.smooks.api.SmooksConfigException;
 import org.smooks.api.SmooksException;
+import org.smooks.api.io.Sink;
 import org.smooks.api.resource.config.ResourceConfig;
 import org.smooks.api.resource.visitor.VisitAfterReport;
 import org.smooks.api.resource.visitor.VisitBeforeReport;
@@ -62,7 +63,6 @@ import org.smooks.engine.memento.TextAccumulatorMemento;
 import org.smooks.engine.memento.TextAccumulatorVisitorMemento;
 import org.smooks.engine.resource.config.xpath.IndexedSelectorPath;
 import org.smooks.engine.resource.config.xpath.step.AttributeSelectorStep;
-import org.smooks.io.sink.FilterSink;
 import org.smooks.resource.URIResourceLocator;
 import org.smooks.support.DomUtils;
 import org.smooks.support.FreeMarkerTemplate;
@@ -75,6 +75,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -280,14 +281,11 @@ public final class Validator implements ChildrenVisitor, AfterVisitor {
     }
 
     private ValidationSink getValidationResult(ExecutionContext executionContext) {
-        ValidationSink validationResult = (ValidationSink) FilterSink.getSink(executionContext, ValidationSink.class);
-        // Create a new ValidationResult if one was not available in the execution context.
-        // This would be the case for example if one as not specified to Smooks filter method.
-        if (validationResult == null) {
-            validationResult = new ValidationSink();
-        }
+        Optional<Sink> validationSink = executionContext.getOrDefault(Sink.SINKS_TYPED_KEY, Collections.emptyList()).stream().filter(s -> ValidationSink.class.isAssignableFrom(s.getClass())).findFirst();
 
-        return validationResult;
+        // Create a new ValidationSink if one was not available in the execution context.
+        // This would be the case for example if one as not specified to Smooks filter method.
+        return validationSink.map(sink -> (ValidationSink) sink).orElseGet(ValidationSink::new);
     }
 
     private synchronized void setRuleProvider(ExecutionContext executionContext) {
