@@ -3,6 +3,9 @@
 image:https://img.shields.io/maven-central/v/org.smooks.cartridges/smooks-validation-cartridge[Maven Central]
 image:https://img.shields.io/nexus/s/org.smooks.cartridges/smooks-validation-cartridge?server=https%3A%2F%2Foss.sonatype.org[Sonatype Nexus (Snapshots)]
 image:https://github.com/smooks/smooks-validation-cartridge/workflows/CI/badge.svg[Build Status]
+image:https://img.shields.io/badge/group-user-red?logo=Gmail[email group,link=https://groups.google.com/g/smooks-user]
+image:https://img.shields.io/badge/group-dev-red?logo=Gmail[email group,link=https://groups.google.com/g/smooks-dev]
+image:https://img.shields.io/badge/chat-on%20gitter-46bc99.svg[Gitter chat,link=https://gitter.im/smooks/smooks]
 
 // tag::smooks-validation-cartridge[]
 The Smooks Validation Cartridge builds on the functionality provided by the https://github.com/smooks/smooks-rules-cartridge/blob/master/README.adoc[rules cartridge], to provide rules-based fragment validation.
